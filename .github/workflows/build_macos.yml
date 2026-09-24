@@ -27,7 +27,7 @@ jobs:
 
       # 4. Biên dịch app cho macOS (bỏ qua ký chứng chỉ để build không cần tài khoản trả phí)
       - name: Build macOS Release
-        run: flutter build macos --release --no-codesign
+        run: flutter build macos --release
 
       # 5. Nén thư mục .app thành file .zip
       - name: Compress App
