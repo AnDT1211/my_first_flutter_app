@@ -1,0 +1,43 @@
+name: Build Flutter for macOS
+
+on:
+  push:
+    branches: [ main, master ] # Tự động chạy khi bạn push code lên nhánh main/master
+  workflow_dispatch:           # Cho phép bạn bấm nút chạy thủ công trên web GitHub
+
+jobs:
+  build-mac:
+    # Yêu cầu GitHub cấp máy ảo macOS (đã cài sẵn Xcode)
+    runs-on: macos-latest
+
+    steps:
+      # 1. Kéo mã nguồn của bạn về máy ảo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Cài đặt Flutter trên máy ảo Mac
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 3. Tải các thư viện phụ thuộc
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4. Biên dịch app cho macOS (bỏ qua ký chứng chỉ để build không cần tài khoản trả phí)
+      - name: Build macOS Release
+        run: flutter build macos --release --no-codesign
+
+      # 5. Nén thư mục .app thành file .zip
+      - name: Compress App
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r my_app_macos.zip *.app
+
+      # 6. Tải file zip lên GitHub Artifacts để bạn tải về
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-build
+          path: build/macos/Build/Products/Release/my_app_macos.zip
